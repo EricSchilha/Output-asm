@@ -21,8 +21,30 @@
     ; need to change next line, code offset is wrong
     org	2000h		;Continue program after the interrupt vector
 
+initOsc
+    org 2018h	
+    
+    banksel	OSCTUNE
+    movlw 0x80	    ;3X PLL ratio mode selected
+    movwf OSCTUNE
+    
+    banksel OSCCON
+    movlw  0x70		;Switch to 16MHz HFINTOSC
+    movwf OSCCON
+      
+    banksel OSCCON2
+    movlw 0x10		; Enable PLL, SOSC, PRI OSC drivers turned off
+    movwf OSCCON2
+    
+    banksel ACTCON
+    movlw 0x90	    	; Enable active clock tuning for USB operation
+    movwf ACTCON
+  
+initOscWhile		; wait until !pllrdy  
+    btfss PLLRDY, 1 ;?????
+    goto initOscWhile
+	
 initPorts
-    org 2018h			;??
     ;Configures PORTA and PORTB for digital I/O
        
     banksel	LATA
@@ -63,7 +85,7 @@ initPorts
 
 main				
     movlw	11000011b	;Send this pattern to the
-    movwf	PORTB		;Port B LEDs
+    movwf	LATB		;Port B LEDs
     sleep			;Done - shut down microcontroller core
 
     end
