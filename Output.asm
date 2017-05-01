@@ -16,7 +16,7 @@
 
 ;Start the program at the reset vector
 
-    org	00h		;Reset vector - start of program memory
+    org	2000h		;Reset vector - start of program memory
     goto initPorts	;Jump to initialize routine
     ; need to change next line, code offset is wrong
     org	2000h		;Continue program after the interrupt vector
@@ -24,26 +24,24 @@
 initPorts
     org 2018h			;??
     ;Configures PORTA and PORTB for digital I/O
-    banksel	ANSELA		;Switch register banks
-    clrf	ANSELA		;Set all PORTA pins to digital
-    
-    movlw	01010111b	;Enable Port B pull-ups, TMR0 internal
-    ;movwf	OPTION_REG	;clock, and 256 prescaler
-    
+       
     banksel	LATA
     clrf	LATA
-    banksel	ANSELA		;Switch register banks
-    clrf	ANSELA		;Set all PORTB pins to digital
-    banksel	TRISA		;Switch register banks
-    movlw	00101111b	;Set piezo and LED pins as outputs and
-    movwf	TRISA		;all other PORTA pins as inputs
-    banksel	PORTA		;Return to register bank 0
-    clrf	PORTA		;Clear all PORTA outputs and turn on Run LED
+    banksel	ANSELA		
+    clrf	ANSELA		;Make all Port A pins digital
+    banksel	TRISA		
+    movlw	00101111b	;Set runLED, IR LEDs as outputs in PORTA
+    movwf	TRISA		
+    banksel	PORTA		
+    ;clrf	PORTA		;Clear all PORTA outputs and turn on Run LED
     
-    banksel	LATB
-    clrf	LATB    
-    banksel	ANSELB		;Switch register banks
-    clrf	ANSELB		;Set all PORTB pins to digital
+   ; movlw	01010111b	;Enable Port B pull-ups, TMR0 internal
+    ;movwf	OPTION_REG	;clock, and 256 prescaler
+    
+    banksel	LATB		
+    clrf	LATB		;Clear Port B latches before configuring PORTB
+    banksel	ANSELB		
+    clrf	ANSELB		;Make all Port B pins digital
     banksel	TRISB
     clrf	TRISB
     banksel	PORTB		
