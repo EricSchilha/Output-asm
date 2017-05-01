@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=CHRPMINI-Assembly.X
+PROJECTNAME=Output-asm
 
 # Active Configuration
 DEFAULTCONF=default

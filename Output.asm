@@ -1,11 +1,11 @@
-;OUTPUT			v3.1	April 22nd, 2017
+;OUTPUT			v3.1	April 27th, 2017
 ;===============================================================================
 ;Description:	Output test program. Initializes the PIC16F886 I/O pins for LED
 ;				output on the CHRP 3.0, and demonstrates port output.
 
 ;Configure MPLAB and the microcongtroller
 
-	include	"p18f25k50.inc"		;Include processor definitions
+    include	"p18f25k50.inc"		;Include processor definitions
 
 	config	PLLSEL = PLL3X, CFGPLLEN = ON, CPUDIV = CLKDIV3, LS48MHZ = SYS48X8, FOSC = INTOSCIO, PCLKEN = ON, FCMEN = OFF, IESO = OFF
 	config	nPWRTEN = OFF, BOREN = SBORDIS, BORV = 190, nLPBOR = OFF, WDTEN = SWON, WDTPS = 32768
@@ -16,25 +16,56 @@
 
 ;Start the program at the reset vector
 
-				org	00h		;Reset vector - start of program memory
-				goto	initPorts	;Jump to initialize routine
-				org	10h		;Continue program after the interrupt vector
+    org	00h		;Reset vector - start of program memory
+    goto initPorts	;Jump to initialize routine
+    ; need to change next line, code offset is wrong
+    org	2000h		;Continue program after the interrupt vector
 
-initPorts						;Configures PORTA and PORTB for digital I/O
-				banksel	ANSELA		;Switch register banks
-				clrf	ANSELA		;Set all PORTA pins to digital
-				clrf	ANSELB		;Set all PORTB pins to digital
-				movlw	01010111b	;Enable Port B pull-ups, TMR0 internal
-				;movwf	OPTION_REG	;clock, and 256 prescaler
-				banksel	TRISA		;Switch register banks
-				movlw	00101111b	;Set piezo and LED pins as outputs and
-				movwf	TRISA		;all other PORTA pins as inputs
-				clrf	TRISB		;Set all PORTB pins as outputs for LEDs
-				banksel	PORTA		;Return to register bank 0
-				clrf	PORTA		;Clear all PORTA outputs and turn on Run LED
+initPorts
+    org 2018h			;??
+    ;Configures PORTA and PORTB for digital I/O
+    banksel	ANSELA		;Switch register banks
+    clrf	ANSELA		;Set all PORTA pins to digital
+    
+    movlw	01010111b	;Enable Port B pull-ups, TMR0 internal
+    ;movwf	OPTION_REG	;clock, and 256 prescaler
+    
+    banksel	LATA
+    clrf	LATA
+    banksel	ANSELA		;Switch register banks
+    clrf	ANSELA		;Set all PORTB pins to digital
+    banksel	TRISA		;Switch register banks
+    movlw	00101111b	;Set piezo and LED pins as outputs and
+    movwf	TRISA		;all other PORTA pins as inputs
+    banksel	PORTA		;Return to register bank 0
+    clrf	PORTA		;Clear all PORTA outputs and turn on Run LED
+    
+    banksel	LATB
+    clrf	LATB    
+    banksel	ANSELB		;Switch register banks
+    clrf	ANSELB		;Set all PORTB pins to digital
+    banksel	TRISB
+    clrf	TRISB
+    banksel	PORTB		
+    clrf	PORTB
+    ;RBPU = 0
+    banksel	LATC
+    clrf	LATC    
+    banksel	ANSELC		;Switch register banks
+    clrf	ANSELC		
+    banksel	TRISC
+    movlw	10110000b	;Set piezo and LED pins as outputs and
+    movwf	TRISC
+    banksel	PORTC
+    clrf	PORTC
+    
+    banksel	T0CON
+    movlw	10000001b	;Enable TMR0 as 16-bit, internal clock, /2
+    movwf	T0CON
 
-main				movlw	11000011b	;Send this pattern to the
-				movwf	PORTB		;Port B LEDs
-				sleep			;Done - shut down microcontroller core
+main				
+    movlw	11000011b	;Send this pattern to the
+    movwf	PORTB		;Port B LEDs
+    sleep			;Done - shut down microcontroller core
 
-				end
+    end

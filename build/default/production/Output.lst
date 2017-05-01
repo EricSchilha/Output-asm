@@ -1,17 +1,17 @@
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE  1
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00001 ;OUTPUT                 v3.1    April 22nd, 2017
+                      00001 ;OUTPUT                 v3.1    April 27th, 2017
                       00002 ;===============================================================================
                       00003 ;Description:   Output test program. Initializes the PIC16F886 I/O pins for LED
                       00004 ;                               output on the CHRP 3.0, and demonstrates port output.
                       00005 
                       00006 ;Configure MPLAB and the microcongtroller
                       00007 
-                      00008         include "p18f25k50.inc"         ;Include processor definitions
+                      00008     INCLUDE     "p18f25k50.inc"         ;Include processor definitions
                       00001         LIST
                       00002 
                       00003 ;==========================================================================
@@ -23,49 +23,77 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00009 
                       02208         LIST
                       00009 
-                      00010         config  PLLSEL = PLL3X, CFGPLLEN = ON, CPUDIV = CLKDIV3, LS48MHZ = SYS48X8, FOSC = INTOSCIO, PCL
+                      00010         CONFIG  PLLSEL = PLL3X, CFGPLLEN = ON, CPUDIV = CLKDIV3, LS48MHZ = SYS48X8, FOSC = INTOSCIO, PCL
                             KEN = ON, FCMEN = OFF, IESO = OFF
-                      00011         config  nPWRTEN = OFF, BOREN = SBORDIS, BORV = 190, nLPBOR = OFF, WDTEN = SWON, WDTPS = 32768
-                      00012         config  CCP2MX = RC1, PBADEN = OFF, T3CMX = RC0, SDOMX = RC7, MCLRE = ON, STVREN = ON, LVP = ON,
+                      00011         CONFIG  NPWRTEN = OFF, BOREN = SBORDIS, BORV = 190, NLPBOR = OFF, WDTEN = SWON, WDTPS = 32768
+                      00012         CONFIG  CCP2MX = RC1, PBADEN = OFF, T3CMX = RC0, SDOMX = RC7, MCLRE = ON, STVREN = ON, LVP = ON,
                              XINST = OFF
-                      00013         config  CP0 = OFF, CP1 = OFF, CP2 = OFF, CP3 = OFF, CPB = OFF, CPD = OFF
-                      00014         config  WRT0 = OFF, WRT1 = OFF, WRT2 = OFF, WRT3 = OFF, WRTC = OFF, WRTB = OFF, WRTD = OFF
-                      00015         config  EBTR0 = OFF, EBTR1 = OFF, EBTR2 = OFF, EBTR3 = OFF, EBTRB = OFF
+                      00013         CONFIG  CP0 = OFF, CP1 = OFF, CP2 = OFF, CP3 = OFF, CPB = OFF, CPD = OFF
+                      00014         CONFIG  WRT0 = OFF, WRT1 = OFF, WRT2 = OFF, WRT3 = OFF, WRTC = OFF, WRTB = OFF, WRTD = OFF
+                      00015         CONFIG  EBTR0 = OFF, EBTR1 = OFF, EBTR2 = OFF, EBTR3 = OFF, EBTRB = OFF
                       00016 
                       00017 ;Start the program at the reset vector
                       00018 
-                      00019                                 org     00h             ;Reset vector - start of program memory
-000000 EF?? F???      00020                                 goto    initPorts       ;Jump to initialize routine
-                      00021                                 org     10h             ;Continue program after the interrupt vector
-                      00022 
-000010                00023 initPorts                                               ;Configures PORTA and PORTB for digital I/O
-000010 010F           00024                                 banksel ANSELA          ;Switch register banks
-000012 6B5B           00025                                 clrf    ANSELA          ;Set all PORTA pins to digital
-000014 6B5C           00026                                 clrf    ANSELB          ;Set all PORTB pins to digital
-Warning[202]: Argument out of range.  Least significant bits used.
-000016 0E1B           00027                                 movlw   11111111b       ;Enable Port B pull-ups, TMR0 internal
-                      00028                                 ;movwf  OPTION_REG      ;clock, and 256 prescaler
-000018 010F           00029                                 banksel TRISA           ;Switch register banks
-Warning[202]: Argument out of range.  Least significant bits used.
-00001A 0E1B           00030                                 movlw   11111111b       ;Set piezo and LED pins as outputs and
-00001C 6E92           00031                                 movwf   TRISA           ;all other PORTA pins as inputs
-00001E 6A93           00032                                 clrf    TRISB           ;Set all PORTB pins as outputs for LEDs
-000020 010F           00033                                 banksel PORTA           ;Return to register bank 0
-000022 6A80           00034                                 clrf    PORTA           ;Clear all PORTA outputs and turn on Run LED
-                      00035 
-Warning[202]: Argument out of range.  Least significant bits used.
-000024 0E1B           00036 main                            movlw   11111111b       ;Send this pattern to the
-000026 6E81           00037                                 movwf   PORTB           ;Port B LEDs
-000028 0003           00038                                 sleep                   ;Done - shut down microcontroller core
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE  2
+                      00019     ORG 00H             ;Reset vector - start of program memory
+000000 EF?? F???      00020     GOTO INITPORTS      ;Jump to initialize routine
+                      00021     ; need to change next line, code offset is wrong
+                      00022     ORG 2000H           ;Continue program after the interrupt vector
+                      00023 
+002000                00024 INITPORTS
+                      00025     ORG 2018H                   ;??
+                      00026     ;Configures PORTA and PORTB for digital I/O
+002018 010F           00027     BANKSEL     ANSELA          ;Switch register banks
+00201A 6B5B           00028     CLRF        ANSELA          ;Set all PORTA pins to digital
+                      00029     
+00201C 0E57           00030     MOVLW       01010111B       ;Enable Port B pull-ups, TMR0 internal
+                      00031     ;movwf      OPTION_REG      ;clock, and 256 prescaler
+                      00032     
+00201E 010F           00033     BANKSEL     LATA
+002020 6A89           00034     CLRF        LATA
+002022 010F           00035     BANKSEL     ANSELA          ;Switch register banks
+002024 6B5B           00036     CLRF        ANSELA          ;Set all PORTB pins to digital
+002026 010F           00037     BANKSEL     TRISA           ;Switch register banks
+002028 0E2F           00038     MOVLW       00101111B       ;Set piezo and LED pins as outputs and
+00202A 6E92           00039     MOVWF       TRISA           ;all other PORTA pins as inputs
+00202C 010F           00040     BANKSEL     PORTA           ;Return to register bank 0
+00202E 6A80           00041     CLRF        PORTA           ;Clear all PORTA outputs and turn on Run LED
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00039 
-                      00040                                 end
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE  3
+                      00042     
+002030 010F           00043     BANKSEL     LATB
+002032 6A8A           00044     CLRF        LATB    
+002034 010F           00045     BANKSEL     ANSELB          ;Switch register banks
+002036 6B5C           00046     CLRF        ANSELB          ;Set all PORTB pins to digital
+002038 010F           00047     BANKSEL     TRISB
+00203A 6A93           00048     CLRF        TRISB
+00203C 010F           00049     BANKSEL     PORTB           
+00203E 6A81           00050     CLRF        PORTB
+                      00051     ;RBPU = 0
+002040 010F           00052     BANKSEL     LATC
+002042 6A8B           00053     CLRF        LATC    
+002044 010F           00054     BANKSEL     ANSELC          ;Switch register banks
+002046 6B5D           00055     CLRF        ANSELC          
+002048 010F           00056     BANKSEL     TRISC
+00204A 0EB0           00057     MOVLW       10110000B       ;Set piezo and LED pins as outputs and
+00204C 6E94           00058     MOVWF       TRISC
+00204E 010F           00059     BANKSEL     PORTC
+002050 6A82           00060     CLRF        PORTC
+                      00061     
+002052 010F           00062     BANKSEL     T0CON
+002054 0E81           00063     MOVLW       10000001B       ;Enable TMR0 as 16-bit, internal clock, /2
+002056 6ED5           00064     MOVWF       T0CON
+                      00065 
+002058                00066 MAIN                            
+002058 0EC3           00067     MOVLW       11000011B       ;Send this pattern to the
+00205A 6E81           00068     MOVWF       PORTB           ;Port B LEDs
+00205C 0003           00069     SLEEP                       ;Done - shut down microcontroller core
+                      00070 
+                      00071     END
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE  3
 
 
 SYMBOL TABLE
@@ -124,7 +152,7 @@ AHEN                              00000001
 AN0                               00000000
 AN1                               00000001
 AN2                               00000002
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE  4
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE  4
 
 
 SYMBOL TABLE
@@ -183,7 +211,7 @@ BRGH                              00000002
 BSR                               00000FE0
 BTOEE                             00000004
 BTOEF                             00000004
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE  5
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE  5
 
 
 SYMBOL TABLE
@@ -242,7 +270,7 @@ CCP2IE                            00000000
 CCP2IF                            00000000
 CCP2IP                            00000000
 CCP2M0                            00000000
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE  6
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE  6
 
 
 SYMBOL TABLE
@@ -301,7 +329,7 @@ CTMUIP                            00000003
 CTMUMD                            00000005
 CTMUSIDL                          00000005
 CTTRIG                            00000000
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE  7
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE  7
 
 
 SYMBOL TABLE
@@ -360,7 +388,7 @@ EEDATA                            00000FA8
 EEIE                              00000004
 EEIF                              00000004
 EEIP                              00000004
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE  8
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE  8
 
 
 SYMBOL TABLE
@@ -419,7 +447,7 @@ HLVDEN                            00000004
 HLVDIE                            00000002
 HLVDIF                            00000002
 HLVDIN                            00000005
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE  9
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE  9
 
 
 SYMBOL TABLE
@@ -437,6 +465,7 @@ IDLEN                             00000007
 INDF0                             00000FEF
 INDF1                             00000FE7
 INDF2                             00000FDF
+INITPORTS                         00002000
 INT0                              00000000
 INT0E                             00000004
 INT0F                             00000001
@@ -477,13 +506,13 @@ IOCC5                             00000005
 IOCC6                             00000006
 IOCC7                             00000007
 IOCIE                             00000003
-IOCIF                             00000000
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 10
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 10
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+IOCIF                             00000000
 IOCIP                             00000000
 IPEN                              00000007
 IPR1                              00000F9F
@@ -532,17 +561,18 @@ LVDIE                             00000002
 LVDIF                             00000002
 LVDIN                             00000005
 LVDIP                             00000002
+MAIN                              00002058
 MC1OUT                            00000007
 MC2OUT                            00000006
 MSSP1MD                           00000006
-MSSPMD                            00000006
-N                                 00000004
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 11
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 11
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+MSSPMD                            00000006
+N                                 00000004
 NOT_BOR                           00000000
 NOT_DONE                          00000001
 NOT_PD                            00000002
@@ -594,14 +624,14 @@ PGM                               00000005
 PIDEE                             00000000
 PIDEF                             00000000
 PIE1                              00000F9D
-PIE2                              00000FA0
-PIE3                              00000FA3
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 12
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 12
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+PIE2                              00000FA0
+PIE3                              00000FA3
 PIR1                              00000F9E
 PIR2                              00000FA1
 PIR3                              00000FA4
@@ -653,14 +683,14 @@ PWM1CON                           00000FB7
 RA0                               00000000
 RA1                               00000001
 RA2                               00000002
-RA3                               00000003
-RA4                               00000004
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 13
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 13
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+RA3                               00000003
+RA4                               00000004
 RA5                               00000005
 RA6                               00000006
 RA7                               00000007
@@ -712,14 +742,14 @@ SCIE                              00000005
 SCKP                              00000004
 SCS0                              00000000
 SCS1                              00000001
-SDAHT                             00000003
-SE0                               00000005
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 14
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 14
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+SDAHT                             00000003
+SE0                               00000005
 SEN                               00000000
 SENDB                             00000003
 SIDL                              00000005
@@ -771,14 +801,14 @@ SSP1ADD3                          00000003
 SSP1ADD4                          00000004
 SSP1ADD5                          00000005
 SSP1ADD6                          00000006
-SSP1ADD7                          00000007
-SSP1BUF                           00000FC9
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 15
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 15
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+SSP1ADD7                          00000007
+SSP1BUF                           00000FC9
 SSP1CON1                          00000FC6
 SSP1CON2                          00000FC5
 SSP1CON3                          00000FCB
@@ -830,14 +860,14 @@ STMD                              00000004
 STOR                              00000001
 STR1A                             00000000
 STR1B                             00000001
-STR1C                             00000002
-STR1D                             00000003
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 16
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 16
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+STR1C                             00000002
+STR1D                             00000003
 STR1SYNC                          00000004
 STRA                              00000000
 STRB                              00000001
@@ -889,14 +919,14 @@ T2OUTPS0                          00000003
 T2OUTPS1                          00000004
 T2OUTPS2                          00000005
 T2OUTPS3                          00000006
-T3CKPS0                           00000004
-T3CKPS1                           00000005
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 17
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 17
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+T3CKPS0                           00000004
+T3CKPS1                           00000005
 T3CON                             00000FB1
 T3DONE                            00000003
 T3GCON                            00000FB4
@@ -948,14 +978,14 @@ TMR2MD                            00000001
 TMR2ON                            00000002
 TMR3                              00000FB2
 TMR3CS0                           00000006
-TMR3CS1                           00000007
-TMR3GE                            00000007
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 18
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 18
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+TMR3CS1                           00000007
+TMR3GE                            00000007
 TMR3GIE                           00000001
 TMR3GIF                           00000001
 TMR3GIP                           00000001
@@ -1007,14 +1037,14 @@ TSRNG                             00000002
 TUN0                              00000000
 TUN1                              00000001
 TUN2                              00000002
-TUN3                              00000003
-TUN4                              00000004
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 19
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 19
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+TUN3                              00000003
+TUN4                              00000004
 TUN5                              00000005
 TUN6                              00000006
 TX                                00000006
@@ -1066,14 +1096,14 @@ UIR                               00000F65
 UOEMON                            00000006
 UPUEN                             00000004
 URSTIE                            00000000
-URSTIF                            00000000
-USBEN                             00000003
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 20
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 20
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+URSTIF                            00000000
+USBEN                             00000003
 USBIE                             00000002
 USBIF                             00000002
 USBIP                             00000002
@@ -1125,14 +1155,14 @@ _CONFIG2L                         00300002
 _CONFIG3H                         00300005
 _CONFIG4L                         00300006
 _CONFIG5H                         00300009
-_CONFIG5L                         00300008
-_CONFIG6H                         0030000B
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 21
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 21
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+_CONFIG5L                         00300008
+_CONFIG6H                         0030000B
 _CONFIG6L                         0030000A
 _CONFIG7H                         0030000D
 _CONFIG7L                         0030000C
@@ -1184,14 +1214,14 @@ _FOSC_RCIO_1H                     000000F7
 _FOSC_XT_1H                       000000F1
 _ICPRT_OFF_4L                     000000DF
 _IDLOC0                           00200000
-_IDLOC1                           00200001
-_IDLOC2                           00200002
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 22
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 22
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
+_IDLOC1                           00200001
+_IDLOC2                           00200002
 _IDLOC3                           00200003
 _IDLOC4                           00200004
 _IDLOC5                           00200005
@@ -1205,6 +1235,10 @@ _LVP_OFF_4L                       000000FB
 _LVP_ON_4L                        000000FF
 _MCLRE_OFF_3H                     0000007F
 _MCLRE_ON_3H                      000000FF
+_NLPBOR_OFF_2L                    000000FF
+_NLPBOR_ON_2L                     000000BF
+_NPWRTEN_OFF_2L                   000000FF
+_NPWRTEN_ON_2L                    000000FE
 _PBADEN_OFF_3H                    000000FD
 _PBADEN_ON_3H                     000000FF
 _PCLKEN_OFF_1H                    000000DF
@@ -1239,18 +1273,18 @@ _WDTPS_8192_2H                    000000F7
 _WDTPS_8_2H                       000000CF
 _WRT0_OFF_6L                      000000FF
 _WRT0_ON_6L                       000000FE
+MPASM 5.66                        OUTPUT.ASM   5-1-2017  10:14:39         PAGE 23
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
 _WRT1_OFF_6L                      000000FF
 _WRT1_ON_6L                       000000FD
 _WRT2_OFF_6L                      000000FF
 _WRT2_ON_6L                       000000FB
 _WRT3_OFF_6L                      000000FF
 _WRT3_ON_6L                       000000F7
-MPASM 5.66                        OUTPUT.ASM   4-27-2017  10:47:15         PAGE 23
-
-
-SYMBOL TABLE
-  LABEL                             VALUE 
-
 _WRTB_OFF_6H                      000000FF
 _WRTB_ON_6H                       000000BF
 _WRTC_OFF_6H                      000000FF
@@ -1260,15 +1294,9 @@ _WRTD_ON_6H                       0000007F
 _XINST_OFF_4L                     000000BF
 _XINST_ON_4L                      000000FF
 __18F25K50                        00000001
-_nLPBOR_OFF_2L                    000000FF
-_nLPBOR_ON_2L                     000000BF
-_nPWRTEN_OFF_2L                   000000FF
-_nPWRTEN_ON_2L                    000000FE
-initPorts                         00000010
-main                              00000024
 
 Errors   :     0
-Warnings :     3 reported,     0 suppressed
+Warnings :     0 reported,     0 suppressed
 Messages :     0 reported,     0 suppressed
 
 
