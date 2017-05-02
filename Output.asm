@@ -18,30 +18,29 @@
 
     org	2000h		;Reset vector - start of program memory
     goto initPorts	;Jump to initialize routine
-    ; need to change next line, code offset is wrong
     org	2000h		;Continue program after the interrupt vector
 
 initOsc
     org 2018h	
     
-    banksel	OSCTUNE
-    movlw 0x80	    ;3X PLL ratio mode selected
-    movwf OSCTUNE
+    banksel OSCTUNE
+    movlw   0x80		;3X PLL ratio mode selected
+    movwf   OSCTUNE
     
     banksel OSCCON
-    movlw  0x70		;Switch to 16MHz HFINTOSC
-    movwf OSCCON
+    movlw   0x70		;Switch to 16MHz HFINTOSC
+    movwf   OSCCON
       
     banksel OSCCON2
-    movlw 0x10		; Enable PLL, SOSC, PRI OSC drivers turned off
-    movwf OSCCON2
+    movlw   0x10		; Enable PLL, SOSC, PRI OSC drivers turned off
+    movwf   OSCCON2
     
     banksel ACTCON
-    movlw 0x90	    	; Enable active clock tuning for USB operation
-    movwf ACTCON
+    movlw   0x90	    	; Enable active clock tuning for USB operation
+    movwf   ACTCON
   
-initOscWhile		; wait until !pllrdy  
-    btfss PLLRDY, 1 ;?????
+initOscWhile			; wait until !PLLRDY
+    btfss PLLRDY, 1 ;why 1???
     goto initOscWhile
 	
 initPorts
@@ -55,9 +54,10 @@ initPorts
     movlw	00101111b	;Set runLED, IR LEDs as outputs in PORTA
     movwf	TRISA		
     banksel	PORTA		
-    ;clrf	PORTA		;Clear all PORTA outputs and turn on Run LED
+    clrf	PORTA		;Clear all PORTA outputs and turn on Run LED
     
-   ; movlw	01010111b	;Enable Port B pull-ups, TMR0 internal
+    ;next 2 lines are for the old processor presumably
+    ;movlw	01010111b	;Enable Port B pull-ups, TMR0 internal
     ;movwf	OPTION_REG	;clock, and 256 prescaler
     
     banksel	LATB		
@@ -68,7 +68,7 @@ initPorts
     clrf	TRISB
     banksel	PORTB		
     clrf	PORTB
-    ;RBPU = 0
+    ;RBPU = 0			; something about PORTB pullup resistors?
     banksel	LATC
     clrf	LATC    
     banksel	ANSELC		;Switch register banks
