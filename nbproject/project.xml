@@ -3,7 +3,7 @@
     <type>com.microchip.mplab.nbide.embedded.makeproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/make-project/1">
-            <name>CHRPMini-Assembly</name>
+            <name>CHRPMINI-Assembly</name>
             <creation-uuid>6572880c-144a-492f-a5e8-4342f8e5d0da</creation-uuid>
             <make-project-type>0</make-project-type>
             <c-extensions/>
