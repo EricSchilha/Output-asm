@@ -17,12 +17,10 @@
 ;Start the program at the reset vector
 
     org	2000h		;Reset vector - start of program memory
-    goto initPorts	;Jump to initialize routine
-    org	2000h		;Continue program after the interrupt vector
+    goto initOsc	;Jump to initialize routine
+    org	2018h		;Continue program after the interrupt vector
 
-initOsc
-    org 2018h	
-    
+initOsc	
     banksel OSCTUNE
     movlw   0x80		;3X PLL ratio mode selected
     movwf   OSCTUNE
@@ -40,7 +38,8 @@ initOsc
     movwf   ACTCON
   
 initOscWhile			; wait until !PLLRDY
-    btfss PLLRDY, 1 ;why 1???
+    ;btfss PLLRDY, 1 ;why 1???
+    btfsc   OSCCON2, PLLRDY
     goto initOscWhile
 	
 initPorts
